@@ -1,0 +1,44 @@
+{
+    "name" : "innova/angular-ui-resource-picker-bundle",
+    "description" : "Integrate Claroline resource picker into Angular JS",
+    "type" : "library",
+    "authors" : [{
+            "name" : "Arnaud Bey",
+            "email" : "arnaud.bey@u-grenoble3.fr"
+        }, {
+            "name" : "Axel Penin",
+            "email" : "axel.penin@u-grenoble3.fr"
+        }, {
+            "name" : "Eric Vincent",
+            "email" : "eric.vincent@u-grenoble3.fr"
+        }, {
+            "name" : "Donovan Tengblad",
+            "email" : "donovan.tengblad@u-grenoble3.fr"
+        }
+    ],
+    "keywords" : [
+        "angular",
+        "resource",
+        "picker",
+        "symfony2",
+        "claroline"
+    ],
+    "homepage" : "http://github.com/InnovaLangues/AngularUIResourcePickerBundle",
+    "license" : [
+        "MIT"
+    ],
+    "require" : {
+        "symfony/symfony" : "2.*",
+        "php" : ">=5.3.0",
+        "claroline/kernel-bundle" : "~1.0",
+        "claroline/core-bundle" : "~1.0",
+        "symfony/framework-bundle" : "2.*",
+        "innova/angular-js-bundle" : "1.*"
+    },
+    "autoload" : {
+        "psr-0" : {
+            "Innova\\AngularUIResourcePickerBundle" : "."
+        }
+    },
+    "target-dir" : "Innova/AngularUIResourcePickerBundle"
+}
