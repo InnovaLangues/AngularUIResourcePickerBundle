@@ -3,6 +3,8 @@
 angular.module('ui.resourcePicker', [])
     .value('uiResourcePickerConfig', {})
     .directive('uiResourcePicker', ['uiResourcePickerConfig', function (uiResourcePickerConfig) {
+        uiResourcePickerConfig = uiResourcePickerConfig || {};
+
         // Set some default options
         var options = {
             parentElement: '#resourcePicker',
@@ -15,21 +17,25 @@ angular.module('ui.resourcePicker', [])
             }
         };
 
-        uiResourcePickerConfig = uiResourcePickerConfig || {};
-
-        // Merge default config with user config
-        angular.extend(options, uiResourcePickerConfig);
-
         return {
             restrict: "A",
             link: function ($scope, el, attrs) {
+                if (attrs.uiResourcePicker) {
+                    var expression = $scope.$eval(attrs.uiResourcePicker);
+                } else {
+                    var expression = {};
+                }
+
+                // Merge default config with user config
+                angular.extend(options, uiResourcePickerConfig, expression);
+
                 var $parentElement = $(options.parentElement);
                 if ($parentElement === undefined || $parentElement.length === 0) {
                     $('body').append('<div id="' + options.parentElement + '"></div>');
                 }
 
                 // Reinject jQuery object into Picker config
-                options.parentElement = $parentElement;
+                options.parentElement = $(options.parentElement);
 
                 // Initialize resource picker object
                 Claroline.ResourceManager.initialize(options);
@@ -41,6 +47,11 @@ angular.module('ui.resourcePicker', [])
                 $scope.resourcePickerClose = function () {
                     Claroline.ResourceManager.picker('close');
                 }
+
+                el[0].onclick = function(e){
+                    e.preventDefault();
+                    $scope.resourcePickerOpen();
+                };
             }
         };
     }]);
