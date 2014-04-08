@@ -7,12 +7,11 @@ angular.module('ui.resourcePicker', [])
 
         // Set some default options
         var options = {
-            parentElement: '#resourcePicker',
             isPickerMultiSelectAllowed: true,
             isPickerOnly: false,
             isWorkspace: false,
             resourceTypes: {},
-            callback: function (nodes) {
+            pickerCallback: function (nodes) {
                 return null;
             }
         };
@@ -29,18 +28,9 @@ angular.module('ui.resourcePicker', [])
                 // Merge default config with user config
                 angular.extend(options, uiResourcePickerConfig, expression);
 
-                var $parentElement = $(options.parentElement);
-                if ($parentElement === undefined || $parentElement.length === 0) {
-                    $('body').append('<div id="' + options.parentElement + '"></div>');
-                }
-
-                // Reinject jQuery object into Picker config
-                options.parentElement = $(options.parentElement);
-
-                // Initialize resource picker object
-                Claroline.ResourceManager.initialize(options);
-
                 $scope.resourcePickerOpen = function () {
+                    // Initialize resource picker object
+                    Claroline.ResourceManager.initialize(options);
                     Claroline.ResourceManager.picker('open');
                 }
 
