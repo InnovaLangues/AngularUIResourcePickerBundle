@@ -7,12 +7,15 @@ angular.module('ui.resourcePicker', [])
 
         // Set some default options
         var options = {
-            isPickerMultiSelectAllowed: true,
-            isPickerOnly: false,
-            isWorkspace: false,
-            resourceTypes: {},
-            pickerCallback: function (nodes) {
-                return null;
+            name: null,
+            parameters: {
+                isPickerMultiSelectAllowed: true,
+                isPickerOnly: false,
+                isWorkspace: false,
+                resourceTypes: {},
+                callback: function (nodes) {
+                    return null;
+                }
             }
         };
 
@@ -28,19 +31,34 @@ angular.module('ui.resourcePicker', [])
                 // Merge default config with user config
                 angular.extend(options, uiResourcePickerConfig, expression);
 
-                $scope.resourcePickerOpen = function () {
+                if ( typeof options.name === 'undefined' || options.name === null || options.name.length === 0 ) {
+                    // Generate unique name
+                    options.name = 'picker-' + Math.floor(Math.random() * 10000);
+                }
+
+                if (!attrs.id) {
+                    attrs.$set('id', options.name);
+                }
+                else {
+                    // Reuse existing id as picker name
+                    options.name = attrs.id;
+                }
+
+                // Initialize resource picker object
+                Claroline.ResourceManager.createPicker(options.name, options.parameters);
+
+                $scope.resourcePickerOpen = function (pickerName) {
                     // Initialize resource picker object
-                    Claroline.ResourceManager.initialize(options);
-                    Claroline.ResourceManager.picker('open');
-                }
+                    Claroline.ResourceManager.picker(pickerName, 'open');
+                };
 
-                $scope.resourcePickerClose = function () {
-                    Claroline.ResourceManager.picker('close');
-                }
+                $scope.resourcePickerClose = function (pickerName) {
+                    Claroline.ResourceManager.picker(pickerName, 'close');
+                };
 
-                el[0].onclick = function(e){
+                el[0].onclick = function (e) {
                     e.preventDefault();
-                    $scope.resourcePickerOpen();
+                    $scope.resourcePickerOpen(this.id);
                 };
             }
         };
