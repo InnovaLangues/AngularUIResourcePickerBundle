@@ -45,7 +45,9 @@ angular.module('ui.resourcePicker', [])
                 }
 
                 // Initialize resource picker object
-                Claroline.ResourceManager.createPicker(options.name, options.parameters);
+                if (!Claroline.ResourceManager.hasPicker(options.name)) {
+                    Claroline.ResourceManager.createPicker(options.name, options.parameters);
+                }
 
                 $scope.resourcePickerOpen = function (pickerName) {
                     // Initialize resource picker object
