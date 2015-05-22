@@ -1,67 +1,59 @@
-'use strict';
+(function () {
+    'use strict';
 
-angular.module('ui.resourcePicker', [])
-    .value('uiResourcePickerConfig', {})
-    .directive('uiResourcePicker', ['uiResourcePickerConfig', function (uiResourcePickerConfig) {
-        uiResourcePickerConfig = uiResourcePickerConfig || {};
+    angular
+        .module('ui.resourcePicker', [])
+        .directive('btnResourcePicker', [
+            function () {
+                return {
+                    restrict: 'E',
+                    replace: true,
+                    transclude: true,
+                    scope: {
+                        parameters : '='
+                    },
+                    template: '<a href="" role="button" data-ng-click="resourcePickerOpen(pickerName)" data-ng-transclude=""></a>',
+                    link: function ($scope, el, attrs) {
+                        $scope.pickerName = 'picker-' + Math.floor(Math.random() * 10000);
 
-        // Set some default options
-        var options = {
-            name: null,
-            parameters: {
-                isPickerMultiSelectAllowed: true,
-                isPickerOnly: false,
-                isWorkspace: false,
-                resourceTypes: {},
-                callback: function (nodes) {
-                    return null;
-                }
-            }
-        };
+                        // Watch for parameters change
+                        $scope.$watch('parameters', function (newValue) {
+                            if (Claroline.ResourceManager.hasPicker($scope.pickerName)) {
+                                var picker = Claroline.ResourceManager.get($scope.pickerName);
+                                if (angular.isObject(picker)) {
+                                    // Update picker parameters
+                                    for (var parameter in newValue) {
+                                        if (newValue.hasOwnProperty(parameter)) {
+                                            picker.parameters[parameter] = newValue[parameter];
+                                        }
+                                    }
+                                }
+                            }
+                        });
 
-        return {
-            restrict: "A",
-            link: function ($scope, el, attrs) {
-                if (attrs.uiResourcePicker) {
-                    var expression = $scope.$eval(attrs.uiResourcePicker);
-                } else {
-                    var expression = {};
-                }
+                        $scope.resourcePickerOpen = function (pickerName) {
+                            // Initialize resource picker object
+                            if (!Claroline.ResourceManager.hasPicker($scope.pickerName)) {
+                                Claroline.ResourceManager.createPicker($scope.pickerName, $scope.parameters, true);
+                            } else {
+                                console.log('picker use directive');
+                                // Open existing picker
+                                Claroline.ResourceManager.picker(pickerName, 'open');
+                            }
+                        };
 
-                // Merge default config with user config
-                angular.extend(options, uiResourcePickerConfig, expression);
+                        $scope.resourcePickerClose = function (pickerName) {
+                            Claroline.ResourceManager.picker(pickerName, 'close');
+                        };
 
-                if ( typeof options.name === 'undefined' || options.name === null || options.name.length === 0 ) {
-                    // Generate unique name
-                    options.name = 'picker-' + Math.floor(Math.random() * 10000);
-                }
-
-                if (!attrs.id) {
-                    attrs.$set('id', options.name);
-                }
-                else {
-                    // Reuse existing id as picker name
-                    options.name = attrs.id;
-                }
-
-                // Initialize resource picker object
-                if (!Claroline.ResourceManager.hasPicker(options.name)) {
-                    Claroline.ResourceManager.createPicker(options.name, options.parameters);
-                }
-
-                $scope.resourcePickerOpen = function (pickerName) {
-                    // Initialize resource picker object
-                    Claroline.ResourceManager.picker(pickerName, 'open');
-                };
-
-                $scope.resourcePickerClose = function (pickerName) {
-                    Claroline.ResourceManager.picker(pickerName, 'close');
-                };
-
-                el[0].onclick = function (e) {
-                    e.preventDefault();
-                    $scope.resourcePickerOpen(this.id);
+                        // Destroy instance of picker when directive is destroyed
+                        $scope.$on('$destroy', function handleDestroyEvent() {
+                            if (Claroline.ResourceManager.hasPicker($scope.pickerName)) {
+                                Claroline.ResourceManager.destroy($scope.pickerName);
+                            }
+                        });
+                    }
                 };
             }
-        };
-    }]);
+        ]);
+})();
